@@ -35,7 +35,7 @@
           </div>
           <el-divider></el-divider>
           <div style="background-color: rgba(87,59,78,0.2);padding: 10px">
-            摘要：<span style="font-size: 15px;color: dimgrey">{{article.article_abstract}}</span>
+            摘要：<span style="font-size: 15px;color: dimgrey;margin-bottom: 5px ">{{article.article_abstract}}</span>
           </div>
           <div class="markdown-body">
             <div v-html="article.article_content_html"></div>
@@ -107,29 +107,88 @@
             </el-button>
           </div>
           <div v-for="(child,index) in item.children" :key="index">
-            <div style="margin-top: 10px;font-size: 10px">
-              <div class="divinput">
-                <el-avatar :size="25" :src="circleUrl" style="vertical-align:middle"></el-avatar>
-                <span class="spanName" style="font-size: 13px">{{child.username}}</span>
-                <span class="spanDate" style="font-size: 12px" >{{child.creat_time | datefmt("YYYY-MM-DD HH:mm:ss")}}</span>
-              </div>
-              <div style="float: right">
-                <el-button class="btnThumb2" size="mini">
-                  <i class="iconfont icon-dianzan" :style="false?'font-size: 18px;color:red':'font-size: 18px'"/>
-                </el-button>
-              </div>
-              <div class="divcomment2">
-                <span class="spanComment2">
-                  回复<span style="color: blue">@{{child.author}}：</span>
-                    {{child.comment}}
-                </span>
-                <div style="margin-left: 574px">
-                  <el-button style="border: 0;background-color: lavender" size="mini" @click="handle2(child)">
-                    <i class="iconfont icon-pinglun" style="font-size: 14px"/>
+            <div v-if="child.length<1">
+              <div style="margin-top: 10px;font-size: 10px">
+                <div class="divinput">
+                  <el-avatar :size="25" :src="circleUrl" style="vertical-align:middle"></el-avatar>
+                  <span class="spanName" style="font-size: 13px">{{child.username}}</span>
+                  <span class="spanDate" style="font-size: 12px" >{{child.creat_time | datefmt("YYYY-MM-DD HH:mm:ss")}}</span>
+                </div>
+                <div style="float: right">
+                  <el-button class="btnThumb2" size="mini">
+                    <i class="iconfont icon-dianzan" :style="false?'font-size: 18px;color:red':'font-size: 18px'"/>
                   </el-button>
+                </div>
+                <div class="divcomment2">
+                  <span class="spanComment2">
+                    回复<span style="color: blue">@{{child.author}}：</span>
+                      {{child.comment}}
+                  </span>
+                  <div style="margin-left: 574px">
+                    <el-button style="border: 0;background-color: lavender" size="mini" @click="handle2(child)">
+                      <i class="iconfont icon-pinglun" style="font-size: 14px"/>
+                    </el-button>
+                  </div>
                 </div>
               </div>
             </div>
+            <div v-else-if="index<1">
+              <div style="margin-top: 10px;font-size: 10px">
+                <div class="divinput">
+                  <el-avatar :size="25" :src="circleUrl" style="vertical-align:middle"></el-avatar>
+                  <span class="spanName" style="font-size: 13px">{{child.username}}</span>
+                  <span class="spanDate" style="font-size: 12px" >{{child.creat_time | datefmt("YYYY-MM-DD HH:mm:ss")}}</span>
+                </div>
+                <div style="float: right">
+                  <el-button class="btnThumb2" size="mini">
+                    <i class="iconfont icon-dianzan" :style="false?'font-size: 18px;color:red':'font-size: 18px'"/>
+                  </el-button>
+                </div>
+                <div class="divcomment2">
+                  <span class="spanComment2">
+                    回复<span style="color: blue">@{{child.author}}：</span>
+                      {{child.comment}}
+                  </span>
+                  <div style="margin-left: 574px">
+                    <el-button style="border: 0;background-color: lavender" size="mini" @click="handle2(child)">
+                      <i class="iconfont icon-pinglun" style="font-size: 14px"/>
+                    </el-button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div v-else>
+              <div v-show="show === child.parent_id">
+              <div style="margin-top: 10px;font-size: 10px">
+                <div class="divinput">
+                  <el-avatar :size="25" :src="circleUrl" style="vertical-align:middle"></el-avatar>
+                  <span class="spanName" style="font-size: 13px">{{child.username}}</span>
+                  <span class="spanDate" style="font-size: 12px" >{{child.creat_time | datefmt("YYYY-MM-DD HH:mm:ss")}}</span>
+                </div>
+                <div style="float: right">
+                  <el-button class="btnThumb2" size="mini">
+                    <i class="iconfont icon-dianzan" :style="false?'font-size: 18px;color:red':'font-size: 18px'"/>
+                  </el-button>
+                </div>
+                <div class="divcomment2">
+                  <span class="spanComment2">
+                    回复<span style="color: blue">@{{child.author}}：</span>
+                      {{child.comment}}
+                  </span>
+                  <div style="margin-left: 574px">
+                    <el-button style="border: 0;background-color: lavender" size="mini" @click="handle2(child)">
+                      <i class="iconfont icon-pinglun" style="font-size: 14px"/>
+                    </el-button>
+                  </div>
+                </div>
+              </div>
+              </div>
+            </div>
+          </div>
+          <div style="text-align: center;color: #409EFF" v-on:click="hiden(item)">
+            <span v-show="item.children.length !=0 && item.children.length >1" style="font-size: 10px">
+              {{show === item.id?'收起回复':'展开剩余回复'}}
+            </span>
           </div>
         </div>
       </div>
@@ -142,7 +201,7 @@ export default {
   name: 'articleDetial',
   data () {
     return {
-      test: [1, 2, 3, 4],
+      show: '',
       comment: [], // 回复
       navBarFixed: '', // 评论框
       circleUrl: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
@@ -269,6 +328,13 @@ export default {
     handle2 (child) {
       this.placeholder = child.username
       this.parent_id = child.parent_id
+    },
+    hiden (item) {
+      if (this.show !== item.id) {
+        this.show = item.id
+      } else {
+        this.show = ''
+      }
     }
   }
 }
