@@ -282,6 +282,7 @@ export default {
             this.$message('评论成功！')
             this.inputValue = ''
             this.listComment()
+            this.parent_id = 0
           }
         }).catch(error => {
           console.log(error)
