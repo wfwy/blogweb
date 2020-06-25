@@ -94,8 +94,8 @@
         </div>
         <div style="float: right">
 
-          <el-button class="btnThumb1" size="mini" @click="handleButton(item)">
-            <i class="iconfont icon-dianzan" :style="false?'font-size: 18px;color:red':'font-size: 18px'" />
+          <el-button class="btnThumb1" size="mini" @click="handleButton1(item)">
+            <i class="iconfont icon-dianzan" :style="item.state?'font-size: 18px;color:red':'font-size: 18px'" />
           </el-button>
 
         </div>
@@ -107,7 +107,7 @@
             </el-button>
           </div>
           <div v-for="(child,index) in item.children" :key="index">
-            <div v-if="child.length<1">
+            <div v-if="child.length<1 && child.id !==0">
               <div style="margin-top: 10px;font-size: 10px">
                 <div class="divinput">
                   <el-avatar :size="25" :src="circleUrl" style="vertical-align:middle"></el-avatar>
@@ -115,8 +115,8 @@
                   <span class="spanDate" style="font-size: 12px" >{{child.creat_time | datefmt("YYYY-MM-DD HH:mm:ss")}}</span>
                 </div>
                 <div style="float: right">
-                  <el-button class="btnThumb2" size="mini">
-                    <i class="iconfont icon-dianzan" :style="false?'font-size: 18px;color:red':'font-size: 18px'"/>
+                  <el-button class="btnThumb2" size="mini" @click="handleButton2(child)">
+                    <i class="iconfont icon-dianzan" :style="child.state?'font-size: 18px;color:red':'font-size: 18px'"/>
                   </el-button>
                 </div>
                 <div class="divcomment2">
@@ -132,7 +132,7 @@
                 </div>
               </div>
             </div>
-            <div v-else-if="index<1">
+            <div v-else-if="index<1 && child.id !==0">
               <div style="margin-top: 10px;font-size: 10px">
                 <div class="divinput">
                   <el-avatar :size="25" :src="circleUrl" style="vertical-align:middle"></el-avatar>
@@ -140,8 +140,8 @@
                   <span class="spanDate" style="font-size: 12px" >{{child.creat_time | datefmt("YYYY-MM-DD HH:mm:ss")}}</span>
                 </div>
                 <div style="float: right">
-                  <el-button class="btnThumb2" size="mini">
-                    <i class="iconfont icon-dianzan" :style="false?'font-size: 18px;color:red':'font-size: 18px'"/>
+                  <el-button class="btnThumb2" size="mini" @click="handleButton2(child)">
+                    <i class="iconfont icon-dianzan" :style="child.state?'font-size: 18px;color:red':'font-size: 18px'"/>
                   </el-button>
                 </div>
                 <div class="divcomment2">
@@ -166,8 +166,8 @@
                   <span class="spanDate" style="font-size: 12px" >{{child.creat_time | datefmt("YYYY-MM-DD HH:mm:ss")}}</span>
                 </div>
                 <div style="float: right">
-                  <el-button class="btnThumb2" size="mini">
-                    <i class="iconfont icon-dianzan" :style="false?'font-size: 18px;color:red':'font-size: 18px'"/>
+                  <el-button class="btnThumb2" size="mini" @click="handleButton2(child)">
+                    <i class="iconfont icon-dianzan" :style="child.state?'font-size: 18px;color:red':'font-size: 18px'"/>
                   </el-button>
                 </div>
                 <div class="divcomment2">
@@ -187,7 +187,7 @@
           </div>
           <div style="text-align: center;color: #409EFF" v-on:click="hiden(item)">
             <span v-show="item.children.length !=0 && item.children.length >1" style="font-size: 10px">
-              {{show === item.id?'收起回复':'展开剩余回复'}}
+              {{show === item.id?'收起回复':'展开剩余'+(item.children.length-1)+'条回复'}}
             </span>
           </div>
         </div>
@@ -261,6 +261,7 @@ export default {
       }).then(resp => {
         if (resp && resp.status === 200) {
           this.comment = resp.data.data
+          console.log(resp.data.data)
         }
       }).catch(error => {
         console.log(error)
@@ -319,8 +320,77 @@ export default {
         this.navBarFixed = false
       }
     },
-    handleButton (item) {
+    handleButton1 (item) {
       console.log(item)
+      if (sessionStorage.getItem('username')) {
+        if (item.state) {
+          this.$axios.put('/updateCommentTop', {
+            aid: this.$route.query.id,
+            cid: item.id,
+            state: false
+          }).then(resp => {
+            if (resp && resp.status === 200) {
+              this.listComment()
+              this.$message('已取消点赞！')
+            }
+          }).catch(error => {
+            console.log(error)
+          })
+        } else {
+          this.$axios.post('/insertCommentTop', {
+            aid: this.$route.query.id,
+            cid: item.id,
+            state: true
+          }).then(resp => {
+            if (resp && resp.status === 200) {
+              this.listComment()
+              this.$message('点赞成功！')
+            }
+          }).catch(error => {
+            console.log(error)
+          })
+        }
+      } else {
+        this.$alert('请登录后再点赞！', '提示', {
+          confirmButtonText: '确定'
+        })
+      }
+    },
+    handleButton2 (child) {
+      console.log(child)
+      if (sessionStorage.getItem('username')) {
+        if (child.state) {
+          this.$axios.put('/updateCommentTop', {
+            aid: this.$route.query.id,
+            cid: child.id,
+            state: false
+          }).then(resp => {
+            if (resp && resp.status === 200) {
+              this.listComment()
+              this.$message('已取消点赞！')
+            }
+          }).catch(error => {
+            console.log(error)
+          })
+        } else {
+          this.$axios.post('/insertCommentTop', {
+            aid: this.$route.query.id,
+            cid: child.id,
+            state: true
+          }).then(resp => {
+            if (resp && resp.status === 200) {
+              this.listComment()
+              this.$message('点赞成功！')
+            }
+          }).catch(error => {
+            console.log(error)
+          })
+        }
+      } else {
+        this.$alert('请登录后再点赞！', '提示', {
+          confirmButtonText: '确定'
+        })
+      }
     },
     handle1 (item) {
       this.placeholder = item.username
